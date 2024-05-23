@@ -2,6 +2,7 @@ package entity;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -58,7 +59,7 @@ public class Candidate implements Serializable{
 	
 	@ToString.Exclude
 	@OneToMany(mappedBy = "candidate", fetch = FetchType.LAZY)
-	private List<Certificate> certificates;
+	private Set<Certificate> certificates;
 	
 	@ToString.Exclude
 	@OneToMany(mappedBy = "candidate", fetch = FetchType.LAZY)

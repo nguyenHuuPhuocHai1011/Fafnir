@@ -1,7 +1,11 @@
 package query;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -13,6 +17,7 @@ import connection.ConnectionMSSQL;
 import dao.DAO;
 import dao.imp.daoimp;
 import entity.Candidate;
+import entity.Certificate;
 import entity.Position;
 
 class JTC_Query {
@@ -65,4 +70,34 @@ class JTC_Query {
         map.forEach((k, v) -> System.out.println(k + " - " + v));
     }
 
+	@Test
+	void listCadidatesAndCertificates() {
+		System.out.println("listCadidatesAndCertificates()");
+		Map<Candidate, Set<Certificate>> map = dao.listCadidatesAndCertificates();
+		map.forEach((k, v) -> System.out.println(k + " - " + v));
+	}
+	
+//	 Candidate(String id, String fullName, int yearOfBirth, String gender, String email, String phone,
+//				String description)
+	
+	@Test
+	void addCandidate() {
+        System.out.println("addCandidate()");
+        Candidate candidate = new Candidate("C001", "Nguyen Van", 1999, "Nam", "abc@gmail.com", "123456789", "abc");
+        assertTrue(dao.addCandidate(candidate));
+	}
+	
+	@Test
+	void testAddDuplicate() {
+        System.out.println("testAddDuplicateCandidate()");
+        Candidate candidate = new Candidate("C001", "Nguyen Van", 1999, "Nam", "abc@gmail.com", "123456789", "abc");
+        assertEquals(false, dao.addCandidate(candidate));
+	}
+	
+	@Test
+	void testAddInvalid() {
+        System.out.println("testAddInvalidCandidate()");
+        Candidate candidate = new Candidate("C", "Nguyen Van", 1999, "Nam", "abc@gmail.com", "123456789", "abc");
+        assertEquals(false, dao.addCandidate(candidate));
+	}
 }

@@ -2,10 +2,12 @@ package dao.imp;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import connection.ConnectionMSSQL;
 import dao.DAO;
 import entity.Candidate;
+import entity.Certificate;
 import entity.Position;
 import jakarta.persistence.EntityManager;
 
@@ -52,10 +54,17 @@ public class daoimp implements DAO{
 //	+ addCandidate(candidate: Candidate) : boolean
 	public boolean addCandidate(Candidate candidate) {
 		if (candidate.getId().matches("C\\d{3,}")) {
-			entityManager.getTransaction().begin();
-			entityManager.persist(candidate);
-			entityManager.getTransaction().commit();
-			return true;
+			try {
+				entityManager.getTransaction().begin();
+				entityManager.persist(candidate);
+				entityManager.getTransaction().commit();
+				return true;
+			} catch (Exception e) {
+				entityManager.getTransaction().isActive();
+				entityManager.getTransaction().rollback();
+				e.printStackTrace();
+				return false;
+			}
 		}
 		return false;
 	}
@@ -68,6 +77,18 @@ public class daoimp implements DAO{
 		List<?> list = entityManager.createQuery(query).setParameter("id", candidateID).getResultList();
 		Map<Position, Integer> map = list.stream().map(o -> (Object[]) o)
 				.map(a -> Map.entry((Position) a[0], (Integer) a[1]))
+				.collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		return map;
+	}
+	
+//	f) Liệt kê danh sách các ứng viên và danh sách bằng cấp của từng ứng viên. 
+//	+ listCadidatesAndCertificates(): Map<Candidate, Set<Certificate >>  
+	public Map<Candidate, Set<Certificate>> listCadidatesAndCertificates() {
+		String query = "SELECT c FROM Candidate c JOIN FETCH c.certificates";
+		List<?> list = entityManager.createQuery(query, Candidate.class).getResultList();
+		@SuppressWarnings("unchecked")
+		Map<Candidate, Set<Certificate>> map = list.stream().map(o -> (Object[]) o)
+				.map(a -> Map.entry((Candidate) a[0], (Set<Certificate>) a[1]))
 				.collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		return map;
 	}
